@@ -6,12 +6,19 @@
 // global scope, and execute the script.
 const hre = require("hardhat");
 
-
+//FUNCTION FOR ESCROW.JS
 async function main() {
+  const escrow = await hre.ethers.deployContract("Escrow");
+  await escrow.waitForDeployment();
+  console.log(`Escrow deployed at: ${escrow.target}`);
+}
+
+//Function for BANK.JS
+/*async function main() {
   const bank = await hre.ethers.deployContract("Bank");
   await bank.waitForDeployment();
   console.log(`Bank deployed at: ${bank.target}`);
-}
+}*/
 
 
 // We recommend this pattern to be able to use async/await everywhere
