@@ -1,0 +1,60 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0xb87736CCFACa3238d1749072bb64eFdB5B51d8eE",
+      "txHash": "0x322f5e512073eec9806df48e7285bf77fbb31ff5f4e611fb0273327ff8347817",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "52f77b700288d10df408b837894eb9d388c675eb5e394990db5d6fa0c85d0944": {
+      "address": "0x7E80DB2Cbd48F192598F5122b0f23C19a8F3B196",
+      "txHash": "0xd3b57259d1440e602b3976697c57d87b7088aa6c81b34419204282c39684caa0",
+      "layout": {
+        "solcVersion": "0.8.19",
+        "storage": [
+          {
+            "label": "slices",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "Pizza",
+            "src": "contracts\\Pizza.sol:5"
+          }
+        ],
+        "types": {
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "753cd6f89b8d14e4085054ae285579e7e978b6ca7191d51f00f0ee52bb440844": {
+      "address": "0x25ece8e6a4E8925f3a7c28966E88a70812CA8FEF",
+      "txHash": "0x46d62d8b4058f694b082eadf7bbc1e18b1ffc2f96ac65d9ac0a8482d4062a9be",
+      "layout": {
+        "solcVersion": "0.8.19",
+        "storage": [
+          {
+            "label": "slices",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "Pizza",
+            "src": "contracts\\Pizza.sol:5"
+          }
+        ],
+        "types": {
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {}
+      }
+    }
+  }
+}

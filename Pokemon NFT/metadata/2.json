@@ -1,0 +1,16 @@
+{
+    "name" : "Pikachu",
+    "description" : "Famous yellow pokemon",
+    "image" : "https://blush-payable-dormouse-59.mypinata.cloud/ipfs/QmYeNJiqrF7LpN34zsGF67oRQ7PzJRYjHRPuqtni7fXAca/2.png",
+    "external_url" : "https://www.ibu.edu.ba/",
+    "attribute" : [
+    {
+        "trait_type" : "Size",
+        "value" : "Toddler Pokemon"
+    }, 
+    {
+        "trait_type" : "Catch Rate",
+        "value" : 250
+    }
+]
+}
