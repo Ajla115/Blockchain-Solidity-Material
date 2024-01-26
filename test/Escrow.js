@@ -8,82 +8,208 @@ const { ethers } = require("hardhat");
 let Escrow; //calling contract Escrow.sol
 let escrowInstance; //creating a contract instance
 
-//Start test block
-describe('Escrow', function() {
+//First test block
+describe('Creating of Escrow Contract', function() {
+
+
     beforeEach (async function() {
         Escrow = await ethers.getContractFactory("Escrow");
         escrowInstance = await Escrow.deploy();
     });
 
-    //Test Case to test modifier, onlyAdmin - passes, bc output is failed result from reality
-    //Only holder or escrow can create contract
-    it("failed to create contract as admin", async function () {
-        const[owner, otherAccount1, otherAccount2] = await ethers.getSigners();
-        await expect(escrowInstance.createEscrowContract(otherAccount1, otherAccount2)).to.be.revertedWith("You are not permitted to call this function");
+    
+    it("Creating a contract - testing the structure with right parameters, so emit should be the final result", async () => {
+
+        let autoContractId = 0; //every contract has its one contract ID, so I don't get confused, bc with this I could easily get confused
+
+        const[ holder, escrow ] = await ethers.getSigners();
+        //since holder's address is the first one in the row, he is also an admin
+
+        const amountToSend =  ethers.parseEther("5.0"); // Amount to send in wei
+
+       expect ( await escrowInstance.createEscrowContract(holder, escrow, { value: amountToSend })).to.emit(escrowInstance, "EscrowCreated").withArgs(autoContractId, holder, escrow);
+       console.log("Id of the current created contract: %d", autoContractId);
+        autoContractId++;
+       console.log("Id has been successfully incremented: %d", autoContractId);
+
+       //This increment works only inside of the same test, with tests one below the another
+       //The increment does not work when we restart the same test all over again
+       //Because we are deleting previous work and then running again
+
+       const amountToSend2 =  ethers.parseEther("2.0"); // Amount to send in wei
+       expect ( await escrowInstance.createEscrowContract(holder, escrow, { value: amountToSend2 })).to.emit(escrowInstance, "EscrowCreated").withArgs(autoContractId, holder, escrow);
+       console.log("Id of the current created contract: %d", autoContractId);
+        autoContractId++;
+       console.log("Id has been successfully incremented again: %d", autoContractId);
+    });
+
+    //Same test as the one above, but this is whole package;
+    //It includes at the same time emit, revert and is payable
+    it("Creating a contract - full package", async () => {
+
+        let autoContractId = 0; //every contract has its one contract ID, so I don't get confused, bc with this I could easily get confused
+
+        const[ holder, escrow ] = await ethers.getSigners();
+        //since holder's address is the first one in the row, he is also an admin
+
+        const amountToSend =  ethers.parseEther("5.0"); // Amount to send in wei
+
+        expect ( await escrowInstance.createEscrowContract(holder, escrow, { value: amountToSend })).to.be.revertedWith("You are not permitted to call this function");
+
+        expect ( await escrowInstance.createEscrowContract(holder, escrow, { value: amountToSend })).to.emit(escrowInstance, "EscrowCreated").withArgs(autoContractId, holder, escrow);
+        
+        console.log("Id of the current created contract: %d", autoContractId);
+        autoContractId++;
+        console.log("Id has been successfully incremented: %d", autoContractId);
+    });
+
+   
+    //Fails as it should, because I am using a third address to create a contract
+    //Uncomment to see how it works
+    /*it("Creating a contract - testing the modifier onlyOwner", async () => {
+
+        const[holder, escrow, otherAccount ] = await ethers.getSigners();
+        //contract should revert when it is being called from the third address
+
+        let escrowInstance2 = escrowInstance.connect(otherAccount);
+
+        const amountToSend =  ethers.parseEther("5.0"); // Amount to send in wei
+
+       expect ( await escrowInstance2.createEscrowContract(holder, escrow, { value: amountToSend })).to.be.revertedWith("You are not permitted to call this function");
+       autoContractId++;
+       console.log("Id has been successfully incremented: %d", autoContractId);
+    });*/
+});
+
+
+//Second test block
+describe('Unlock and withdraw funds from PREVIOUSLY CREATED accounts', function() {
+
+    beforeEach (async function() {
+        Escrow = await ethers.getContractFactory("Escrow");
+        escrowInstance = await Escrow.deploy();
+
+    });
+
+    it("Create a contract, unlock funds and withdraw funds", async () => {
+
+        let autoContractId = 0; //every contract has its one contract ID, so I don't get confused, bc with this I could easily get confused
+
+        [holder, escrow, recipient] = await ethers.getSigners(); 
+        const amountToSend =  ethers.parseEther("15.0"); // Amount to send in wei
+
+       expect ( await escrowInstance.createEscrowContract(holder, escrow, { value: amountToSend })).to.emit(escrowInstance, "EscrowCreated").withArgs(autoContractId, holder, escrow);
+       console.log("Id of contract whose unlocked status will change: %d", autoContractId);
+       
+       
+
+       //only escrow can unlock funds, so I am switching to that account
+       let escrowInstance2 = escrowInstance.connect(escrow);
+
+       expect ( await escrowInstance2.unlockFunds(autoContractId)).to.be.revertedWith("You are not escrow agent");
+
+       let updatedEscrowContract = await escrowInstance2.getEscrowContract(0);
+
+       expect (updatedEscrowContract.unlocked).to.equal(true);
+       console.log("The new value of unlocked state is: ", updatedEscrowContract.unlocked);
+
+
+       const amountToSend3 = ethers.parseEther("2.0");
+    
+        // Connect as the holder
+        let holderInstance = escrowInstance.connect(holder);
+
+        const changedContract = await holderInstance.getEscrowContract(0);
+        console.log("Balance of contract before calling withdraw function: ", changedContract.balance);
+    
+        // Attempt to withdraw funds - ensure the right contract ID and recipient address is used
+        expect( await holderInstance.withdraw(0, amountToSend3, recipient.address)).to.be.revertedWith("You are not holder of this contract");
+    
+        console.log("Balance of contract after first withdraw call function: ", changedContract.balance);
+
+        //HIGHLY IMPORTANT
+        //Paziti gdje ide prvo expect pa await; a gdje ide prvo await pa expect, malo koristiti logiku
+        //Kad ima jos parametera poslije msg.value, ne moze se koristiti {value: amounToSend3} vec to mora ovako kako je dolje ispod
+        //Takoder, ako sam bila na holder nodeu, pa presla na escrow node, moram napraviti novu TRECU instancu opet za holdera
+        //Bar je ovdje to bio problem
+
+        //the unlocked feature has to be previously set to true, otherwise this revert will happen
+        expect( await holderInstance.withdraw(0, amountToSend3, recipient.address)).to.be.revertedWith("This contract is locked");
+    
+        console.log("Balance of contract after second withdraw call function: ", changedContract.balance);
+
+        //there should be more money in the wallet, than you're trying to withdraw. If not, revert will happen
+        expect(await holderInstance.withdraw(0, amountToSend3, recipient.address)).to.be.revertedWith("Not enough ether in your balance");
+    
+        console.log("Balance of contract after third withdraw call function: ", changedContract.balance);
+
+        autoContractId++;
+        console.log("Id of next contract will be: %d", autoContractId);
+    });
+
+    it("Create a contract,  and unlock funds", async () => {
+
+        let autoContractId = 0; //every contract has its one contract ID, so I don't get confused, bc with this I could easily get confused
+
+        [holder, escrow] = await ethers.getSigners(); 
+        console.log("Holder address:", holder.address);
+        console.log("Escrow address:", escrow.address);
+
+        const amountToSend =  ethers.parseEther("5.0"); // Amount to send in wei
+
+       expect ( await escrowInstance.createEscrowContract(holder, escrow, { value: amountToSend })).to.emit(escrowInstance, "EscrowCreated").withArgs(autoContractId, holder, escrow);
+       console.log("Id of contract whose unlocked status will change: %d", autoContractId);
+       
+       //only escrow can unlock funds, so I am switching to that account
+       let escrowInstance2 = escrowInstance.connect(escrow);
+       console.log("Current address calling the contract:", escrow.address);
+
+       expect ( await escrowInstance2.unlockFunds(autoContractId)).to.be.revertedWith("You are not escrow agent");
+
+       let updatedEscrowContract = await escrowInstance2.getEscrowContract(autoContractId);
+       //it does not make any difference, if I use autoContractId here or just the number, because I always start from 0
+       //and the increment happens later
+       //and the ID will restart everytime, I rerun the test, but it is good to use numbers
+       //when I create multiple contracts in one test, and want to do different things with each
+
+       expect (updatedEscrowContract.unlocked).to.equal(true);
+       console.log("The new value of unlocked state is: ", updatedEscrowContract.unlocked);
+
+       autoContractId++;
+       console.log("Id of next contract will be: %d", autoContractId);
     });
 
 
-    it("successfully create escrow contract", async function () {
-        const[owner, otherAccount1, otherAccount2] = await ethers.getSigners();
+    //This test fails on purpose, it disables to unlock funds from holder account
+    /*it("Create a contract, and unlock funds - testing the modifier", async () => {
 
-        //forbids admin/owner to create a contract
-        await expect(escrowInstance.createEscrowContract(otherAccount1, otherAccount2)).to.be.revertedWith("You are not permitted to call this function");
+        const[ holder, escrow ] = await ethers.getSigners();
+        //since holder's address is the first one in the row, he is also an admin
 
-        //onnly holder or escrow can create a contract
-        //I decided to go with holder
-        let escrowInstance2 = escrowInstance.connect(otherAccount1);
-    
-        // Get the initial contract ID, 
-        //it is a variable, so it doesn't need () at the end
-        const initialContractId = await escrowInstance2.autoContractId; 
+        const amountToSend =  ethers.parseEther("5.0"); // Amount to send in wei
 
-        //Whenever you send msg.value, this means you will have to send certain value
-        const amountToSend = ethers.parseEther("1.0"); // Amount to send in wei
+       expect ( await escrowInstance.createEscrowContract(holder, escrow, { value: amountToSend })).to.emit(escrowInstance, "EscrowCreated").withArgs(autoContractId, holder, escrow);
+       autoContractId++;
+       console.log("Id of contract whose unlocked status will change: %d", autoContractId);
 
-        //returns the actual balance of an Ethereum account (in Ether) 
-        //on the blockchain, not the balance within your contract.
-        const escrowInstance2Address = escrowInstance.address;
-        console.log("escrowInstance2Address");
-        const initialBalance = await ethers.provider.getBalance(escrowInstance2Address);
+       //only escrow can unlock funds, so I am switching to that account
+       //let escrowInstance2 = escrowInstance.connect(escrow);
 
-        //create the contract and emit an event
-        await expect(escrowInstance2.createEscrowContract(otherAccount1, otherAccount2, { value: amountToSend })).to.emit(escrowInstance2, "EscrowCreated").withArgs(initialContractId, otherAccount1, otherAccount2);
+       //Now, I am trying to call the same function with holder address, so I get revert on purpose
+       expect ( await escrowInstance.unlockFunds(0)).to.be.revertedWith("You are not escrow agent");
 
-        //Now, this is just comparison, to see if we created a contract in a correct way
-        const escrowContractVar = await escrowInstance2.getEscrowContract(initialContractId);
-        expect(escrowContractVar.contractId).to.equal(initialContractId);
-        expect(escrowContractVar.holder).to.equal(otherAccount1);
-        expect(escrowContractVar.escrow).to.equal(otherAccount2);
-        expect(escrowContractVar.balance).to.equal(amountToSend);
-        expect(escrowContractVar.unlocked).to.equal(false);
+       let updatedEscrowContract = await escrowInstance2.getEscrowContract(0);
 
-        // Check if the contract balance increased by the sent amount
-        const finalBalance = await ethers.provider.getBalance(escrowInstance2);
-        expect(finalBalance).to.equal(initialBalance.add(amountToSend));
-  });
-        
-   
+       expect (updatedEscrowContract.unlocked).to.equal(true);
+       console.log(updatedEscrowContract.unlocked);
+    });*/
 
-   
-    //Test Case
-   it("succesfully unlock funds", async function(){
-        const[owner, otherAccount1, otherAccount2] = await ethers.getSigners();
-        //otherAccount2 --> escrow
 
-        //this has to be done by an escrow
-        let escrowInstance3 = escrowInstance.connect(otherAccount2);
 
-        await expect(escrowInstance3.unlockFunds(0)).to.be.revertedWith("You are not escrow agent");
-        
-        //await (escrowInstance3.unlockFunds(0).unlocked).to.be.true;
 
-        // Change from false to true
-        const escrowContract = await escrowInstance3.getEscrowContract(0);
-        expect(escrowContract.unlocked).to.be.true;
-        
-    });
 
     
+
 
 
 });

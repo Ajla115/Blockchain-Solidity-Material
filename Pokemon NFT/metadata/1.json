@@ -1,7 +1,7 @@
 {
     "name" : "Evede",
     "description" : "Cute brown female pokemon",
-    "image" : "https://blush-payable-dormouse-59.mypinata.cloud/ipfs/QmYeNJiqrF7LpN34zsGF67oRQ7PzJRYjHRPuqtni7fXAca/1.png",
+    "image" : "ipfs://QmYeNJiqrF7LpN34zsGF67oRQ7PzJRYjHRPuqtni7fXAca/1.png",
     "external_url" : "https://www.ibu.edu.ba/",
     "attribute" : [
     {
