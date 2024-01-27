@@ -98,7 +98,7 @@ contract Election {
  
     function vote(address _address) external payable {
         require(inProgress, "The voting has not started.");
-        require(msg.value == votingCost, "You need to send the proper Ether amount to vote.");
+        require(msg.value >= votingCost, "You need to send the proper Ether amount to vote.");
         require(candidates[_address], "This candidate does not exist.");
         require(users[msg.sender], "You are not approved to vote / you have already voted.");
  

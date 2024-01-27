@@ -10,32 +10,56 @@ let electionInstance; //creating a contract instance
 //First test block
 describe('Election process', function() {
     let superowner;
+    let owner1;
+    let owner2;
+    let nonOwner;
+    let user;
     let electionInstance;
     //let inProgress = false;
     let stoppedOnce = false;
     let finalBalance = 0;
     let  numOwners = 0;
     let cost = 2;
+    let candidate = "0xf47bC986343F454742f242a3Fb4Fc5cA2E952B6F";
+    let candidate2 = "0x29faF3eB2AAc9FBBeAa52033670aFfd66d673dD8";
 
 
     beforeEach(async function() {
         const Election = await ethers.getContractFactory("Election");
-        const [superowner] = await ethers.getSigners();
-        electionInstance = await Election.deploy(); 
+        const [superowner, owner1, owner2] = await ethers.getSigners();
+        electionInstance = await Election.deploy(superowner); 
         //there is no need to put superowner as parameter in the brackets, since this is the first msg.sender anyways
+        //I put it just because we have too many owner addresses, so we know which one is for what
         //if it was anything else, we would write it
+
+        await electionInstance.addOwner(owner1);
+        await electionInstance.addOwner(owner2);
     });
 
-    it("Should add owner", async() => {
+    //Both actions can only be performed by the superowner
+    //When I tried to do this from another account besides superowner, I got an error message:
+    //Contract runner does not support following transaction
+    //This means that I don't have to explicitly test modifiers and requires, they will be tested through code
+    //Only if I want to explicitly test them, then I would create a seperate test to see if they're working as intended
+    it("Add, and then remove an owner", async() => {
         
-        let newOwner = "0xf47bC986343F454742f242a3Fb4Fc5cA2E952B6F";
+        let owner3 = "0xf47bC986343F454742f242a3Fb4Fc5cA2E952B6F";
 
-        await electionInstance.addOwner(newOwner);
-        
+        await electionInstance.addOwner(owner3);
+
         //Since I have two reverts two times same function will be called, therefore it will execute twice
-        expect (await electionInstance.getNumberOfOwners()).to.equal(1);
+        expect (await electionInstance.getNumberOfOwners()).to.equal(3);
+
+        console.log("Owner has been successfully added: ", owner3);
+
+        await electionInstance.removeOwner(owner3);
+
+        //Since I have two reverts two times same function will be called, therefore it will execute twice
+        expect (await electionInstance.getNumberOfOwners()).to.equal(2);
+
+        console.log("Owner has been successfully removed: ", owner3);
     });
- 
+
     //Reverts as it should
    /* it("MOD1: Fails as intended, should add owner", async() => {
         const [superowner, otherAccount] = await ethers.getSigners();
@@ -60,51 +84,12 @@ describe('Election process', function() {
 
     });*/
 
-    it("Add, and then remove an owner", async() => {
-        
-        let newOwner = "0xf47bC986343F454742f242a3Fb4Fc5cA2E952B6F";
-
-        await electionInstance.addOwner(newOwner);
-
-        //Since I have two reverts two times same function will be called, therefore it will execute twice
-        expect (await electionInstance.getNumberOfOwners()).to.equal(1);
-
-        console.log("Owner has been successfully added: ", newOwner);
-
-        await electionInstance.removeOwner(newOwner);
-
-        //Since I have two reverts two times same function will be called, therefore it will execute twice
-        expect (await electionInstance.getNumberOfOwners()).to.equal(0);
-
-        console.log("Owner has been successfully removed: ", newOwner);
-    });
-
-     //Reverts as it should
-    /*it("MOD1: Fails as intended, should remove owner", async() => {
-        const [superowner, otherAccount] = await ethers.getSigners();
-        
-        let newOwner = "0xf47bC986343F454742f242a3Fb4Fc5cA2E952B6F";
-
-        await electionInstance.addOwner(newOwner);
-
-       let electionInstance2 = electionInstance.connect(otherAccount);
-        
-       //It should get reverted here
-        expect  (await electionInstance2.removeOwner(newOwner)).to.be.revertedWith("Not a superowner.");
-    });*/
-
-    /*    function addCandidate(address _address) external isAnyOwner {
-        require(!inProgress, "You cannot modify this while voting is in progress.");
-        candidates[_address] = true;
-    }
-    */
-
+    //This is more than enough to test to see that candidate has been added
     it("Add a candidate", async() => {
-        let newCandidate = "0x29faF3eB2AAc9FBBeAa52033670aFfd66d673dD8";
 
-        await electionInstance.addCandidate(newCandidate);
+        await electionInstance.addCandidate(candidate);
 
-        let addedCandidate = await electionInstance.getCandidate(newCandidate);
+        let addedCandidate = await electionInstance.getCandidate(candidate);
 
         expect (addedCandidate).to.equal(true);
 
@@ -168,53 +153,27 @@ describe('Election process', function() {
 
     it("should add, and then retrieve candidate", async() => {
 
-        let newCandidate = "0x29faF3eB2AAc9FBBeAa52033670aFfd66d673dD8";
+        await electionInstance.addCandidate(candidate2);
 
-        await electionInstance.addCandidate(newCandidate);
-
-        let addedCandidate = await electionInstance.getCandidate(newCandidate);
+        let addedCandidate = await electionInstance.getCandidate(candidate2);
 
         expect (addedCandidate).to.equal(true);
         console.log("Candidate has been succesfully added.");
 
-        let retrievedCandidate = await electionInstance.getCandidate(newCandidate);
+        let retrievedCandidate = await electionInstance.getCandidate(candidate2);
         expect(retrievedCandidate).to.equal(true);
         console.log("Candidate has been succesfully retrieved.");
     });
 
     it("should approve user", async() => {
 
-        const [superowner, owner, randomAccount] = await ethers.getSigners();
+        const [ user2 ] = await ethers.getSigners();
 
-        await electionInstance.addOwner(owner);  //added second owner
+        //let electionInstance2 = electionInstance.connect(nonOwner);
+        //this one fails because modifier only allows any type of owner to approve users
 
-        let electionInstance2 = electionInstance.connect(owner);
-
-        let newUser = "0x29faF3eB2AAc9FBBeAa52033670aFfd66d673dD8";
-
-        await electionInstance2.approveUser(newUser); //second owner doing its thing xD
+        await electionInstance.approveUser(user2);
     });
-
-
-    //Fails as it should, when a third person who is not owner at all, tries to approve a user
-   /* it("MOD: should approve user", async() => {
-
-        const [superowner, owner, randomAccount] = await ethers.getSigners();
-
-        await electionInstance.addOwner(owner);  //added second owner
-
-        let electionInstance2 = electionInstance.connect(owner);
-
-        let newUser = "0x29faF3eB2AAc9FBBeAa52033670aFfd66d673dD8";
-
-        await electionInstance2.approveUser(newUser); //second owner doing its thing xD
-
-        let electionInstance3 = electionInstance.connect(randomAccount);
-
-        let newUser2 = "0xf47bC986343F454742f242a3Fb4Fc5cA2E952B6F";
-
-        expect ( await electionInstance3.approveUser(newUser2)).to.be.revertedWith("Not a superowner nor an owner.");
-    });*/
 
     /*function setVotingCost(uint _cost) external isSuperowner {
         require(!inProgress, "You cannot modify this while voting is in progress.");
@@ -224,11 +183,7 @@ describe('Election process', function() {
 
     it("should set voting cost", async() => {
         
-        let result = await electionInstance.setVotingCost(cost);
-        expect (result).to.be.revertedWith("The voting cost has to be non-zero.");
-        //console.log(result);
-
-
+        expect (await electionInstance.setVotingCost(cost)).to.be.revertedWith("The voting cost has to be non-zero.");
     });
 
    /* function vote(address _address) external payable {
@@ -244,23 +199,25 @@ describe('Election process', function() {
     //Ne treba provjeravati requieres vec samo treba obezbijediti sve uslove da requieres budu tacni
     //Bingo ***shinyy allert***
     it("voting when all conditions are met", async() => {
-        const [owner] = await ethers.getSigners();
+        //user, and candidate1 are global variables so I just call them
+        //also, I set the conditions for requieres here to be correct so there won't be any revert
 
-        let newCandidate = "0x29faF3eB2AAc9FBBeAa52033670aFfd66d673dD8";
+        //Fist added a candidate
+        await electionInstance.addCandidate(candidate);
+        
+        const [ user2 ] = await ethers.getSigners();
 
-        await electionInstance.addCandidate(newCandidate);
+        //Then approved a user
+        await electionInstance.approveUser(user2);
 
-        let addedCandidate = await electionInstance.getCandidate(newCandidate);
-
-        expect (addedCandidate).to.equal(true);
-
-        await electionInstance.approveUser(owner);
-
+        //Disable what could cause requiers
         await electionInstance.startVoting();
 
-        let electionInstance2 = electionInstance.connect(owner);
+        let amountToSend = ethers.parseEther("2.0")
 
-        await electionInstance2.vote(newCandidate);
+        let electionInstance2 = electionInstance.connect(user2);
+
+        await electionInstance2.vote(candidate, {value: amountToSend});
     });
 
     /*  function withdraw() external isAnyOwner {
@@ -278,9 +235,8 @@ describe('Election process', function() {
     }*/
 
     it("should withdraw", async() => {
-        
-        
 
+        await electionInstance.stopVoting();
         await electionInstance.withdraw();
     })
 
