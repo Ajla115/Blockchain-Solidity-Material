@@ -1,7 +1,6 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
 
 
+/*
 contract CharityDonationPlatform {
     address public administrator;
     bool public paused;
@@ -97,4 +96,5 @@ contract CharityDonationPlatform {
     function toggleCircuitBreaker() external onlyAdministrator {
         paused = !paused;
     }
-}
+
+*/
