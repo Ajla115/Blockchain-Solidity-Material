@@ -63,10 +63,9 @@ describe('Creating of Escrow Contract', function() {
         console.log("Id has been successfully incremented: %d", autoContractId);
     });
 
-   
-    //Fails as it should, because I am using a third address to create a contract
-    //Uncomment to see how it works
-    /*it("Creating a contract - testing the modifier onlyOwner", async () => {
+    //Reverts succesfully
+    it("Creating a contract - testing the modifier onlyOwner", async () => {
+        let autoContractId = 0;
 
         const[holder, escrow, otherAccount ] = await ethers.getSigners();
         //contract should revert when it is being called from the third address
@@ -75,10 +74,10 @@ describe('Creating of Escrow Contract', function() {
 
         const amountToSend =  ethers.parseEther("5.0"); // Amount to send in wei
 
-       expect ( await escrowInstance2.createEscrowContract(holder, escrow, { value: amountToSend })).to.be.revertedWith("You are not permitted to call this function");
+       await expect (escrowInstance2.createEscrowContract(holder, escrow, { value: amountToSend })).to.be.revertedWith("You are not permitted to call this function");
        autoContractId++;
        console.log("Id has been successfully incremented: %d", autoContractId);
-    });*/
+    });
 });
 
 
@@ -181,7 +180,8 @@ describe('Unlock and withdraw funds from PREVIOUSLY CREATED accounts', function(
 
 
     //This test fails on purpose, it disables to unlock funds from holder account
-    /*it("Create a contract, and unlock funds - testing the modifier", async () => {
+    it("Create a contract, and unlock funds - testing the modifier", async () => {
+        let autoContractId = 0;
 
         const[ holder, escrow ] = await ethers.getSigners();
         //since holder's address is the first one in the row, he is also an admin
@@ -196,13 +196,21 @@ describe('Unlock and withdraw funds from PREVIOUSLY CREATED accounts', function(
        //let escrowInstance2 = escrowInstance.connect(escrow);
 
        //Now, I am trying to call the same function with holder address, so I get revert on purpose
-       expect ( await escrowInstance.unlockFunds(0)).to.be.revertedWith("You are not escrow agent");
+       await expect (escrowInstance.unlockFunds(0)).to.be.revertedWith("You are not escrow agent");
+       //ovo succesfully reverts
+       //kad npr izazivam namjerno revert i hocu da prode succesfully onda stavljam await except
+       //a kad se moze dogoditi revert ali nece jer samo pravilno sve poredala onda ide expect await
+       //kao ovdje dole ispod sa escrowInstance2
+
+       //ali da bi se fkt unlockes, potrebno je napraviti novu instancu i to po escrowu sad unlock
+       let escrowInstance2 = escrowInstance.connect(escrow);
+       expect ( await escrowInstance2.unlockFunds(0)).to.be.revertedWith("You are not escrow agent");
 
        let updatedEscrowContract = await escrowInstance2.getEscrowContract(0);
 
        expect (updatedEscrowContract.unlocked).to.equal(true);
        console.log(updatedEscrowContract.unlocked);
-    });*/
+    });
 
 
 
