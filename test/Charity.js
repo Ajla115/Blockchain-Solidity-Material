@@ -1,6 +1,7 @@
-/*const { expect } = require("chai");
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
-describe("contract Contract", function () {
+describe("Charity actions", function () {
   let contract;
   let contractInstance;
   let owner;
@@ -9,7 +10,7 @@ describe("contract Contract", function () {
   let address3;
 
   beforeEach(async function () {
-    contract = await ethers.getContractFactory("CharityContract");
+    contract = await ethers.getContractFactory("Charity");
     [owner, address1, address2, address3] = await ethers.getSigners();
     contractInstance = await contract.deploy(ethers.parseEther("10"));
   });
@@ -50,6 +51,7 @@ describe("contract Contract", function () {
 
     await contractInstance.toggleCircuitBreaker();
 
+   
     await expect(
       contractInstance
         .connect(address3)
@@ -74,4 +76,4 @@ describe("contract Contract", function () {
       "Donation amount is less than the specified minimum"
     );
   });
-});*/
+});
