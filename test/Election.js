@@ -61,7 +61,7 @@ describe('Election process', function() {
     });
 
     //Reverts as it should
-   /* it("MOD1: Fails as intended, should add owner", async() => {
+    it("MOD1: Fails as intended, should add owner", async() => {
         const [superowner, otherAccount] = await ethers.getSigners();
         
         let newOwner = "0xf47bC986343F454742f242a3Fb4Fc5cA2E952B6F";
@@ -69,20 +69,20 @@ describe('Election process', function() {
        let electionInstance2 = electionInstance.connect(otherAccount);
         
        //It should get reverted here
-        expect  (await electionInstance2.addOwner(newOwner)).to.be.revertedWith("Not a superowner.");
-    });*/
+        await expect  ( electionInstance2.addOwner(newOwner)).to.be.revertedWith("Not a superowner.");
+    });
 
     //Reverts as it should
-   /* it("REQ: Fails as intended, should add owner", async() => {
+    it("REQ: Fails as intended, should add owner", async() => {
 
         let newOwner = "0xf47bC986343F454742f242a3Fb4Fc5cA2E952B6F";
 
        await electionInstance.setInProgress();
         
        //It should get reverted here
-       expect (await electionInstance.addOwner(newOwner)).to.be.revertedWith("You cannot modify this while voting is in progress.");
+       await expect ( electionInstance.addOwner(newOwner)).to.be.revertedWith("You cannot modify this while voting is in progress.");
 
-    });*/
+    });
 
     //This is more than enough to test to see that candidate has been added
     it("Add a candidate", async() => {
@@ -96,19 +96,19 @@ describe('Election process', function() {
     });
 
     //Reverts as it should
-    /*it("REQ:Fails because inProgress equals true", async() => {
+    it("REQ:Fails because inProgress equals true", async() => {
 
         let newCandidate = "0x29faF3eB2AAc9FBBeAa52033670aFfd66d673dD8";
 
        await electionInstance.setInProgress();
         
        //It should get reverted here
-       expect (await electionInstance.addCandidate(newCandidate)).to.be.revertedWith("You cannot modify this while voting is in progress.");
+       await expect ( electionInstance.addCandidate(newCandidate)).to.be.revertedWith("You cannot modify this while voting is in progress.");
 
-    });*/
+    });
 
     //Reverts as it should
-   /* it("MOD: Fails because the account is not any owner", async() => {
+   it("MOD: Fails because the account is not any owner", async() => {
 
         const [ randomAddress ] = await ethers.getSigners();
 
@@ -124,8 +124,8 @@ describe('Election process', function() {
         //Je li await ili expect; ovdje kad je islo expect (await ) nije bio revert a trebao je biti 
         //Ali sada kad sam ih zamijenila, sada je dobro
         //Znaci treba samo logiku ukljuciti i koristiti
-        await expect (electionInstance3.addCandidate(newCandidate)).to.be.revertedWith("Not a superowner nor an owner.");
-    });*/
+        expect  (await electionInstance3.addCandidate(newCandidate)).to.be.revertedWith("Not a superowner nor an owner.");
+    });
 
 
     /*    function removeCandidate(address _address) external isAnyOwner {
