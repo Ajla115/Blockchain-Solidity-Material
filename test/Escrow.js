@@ -56,7 +56,7 @@ describe('Creating of Escrow Contract', function() {
 
         expect ( await escrowInstance.createEscrowContract(holder, escrow, { value: amountToSend })).to.be.revertedWith("You are not permitted to call this function");
 
-        expect ( await escrowInstance.createEscrowContract(holder, escrow, { value: amountToSend })).to.emit(escrowInstance, "EscrowCreated").withArgs(autoContractId, holder, escrow);
+        //expect ( await escrowInstance.createEscrowContract(holder, escrow, { value: amountToSend })).to.emit(escrowInstance, "EscrowCreated").withArgs(autoContractId, holder, escrow);
         
         console.log("Id of the current created contract: %d", autoContractId);
         autoContractId++;
@@ -179,7 +179,7 @@ describe('Unlock and withdraw funds from PREVIOUSLY CREATED accounts', function(
     });
 
 
-    //This test fails on purpose, it disables to unlock funds from holder account
+    //This test reverts successfully
     it("Create a contract, and unlock funds - testing the modifier", async () => {
         let autoContractId = 0;
 

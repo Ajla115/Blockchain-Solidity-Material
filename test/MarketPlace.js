@@ -37,7 +37,7 @@ describe('Listing, purchasing and updating item on the market place', function()
 
         expect (await marketPlaceInstance.listItem(item_name, item_description, item_price)).to.be.emit(marketPlaceInstance, "ListItemEvent").withArgs(itemId, item_name, seller);
 
-        marketPlaceInstance2 = await marketPlaceInstance.connect(buyer);
+        let marketPlaceInstance2 = await marketPlaceInstance.connect(buyer);
 
         const initialBuyerBalance = await ethers.provider.getBalance(buyer);
         console.log("Buyer balance before transaction 1: ", initialBuyerBalance); 
@@ -67,7 +67,7 @@ describe('Listing, purchasing and updating item on the market place', function()
 
         expect (await marketPlaceInstance.listItem(item_name, item_description, item_price)).to.be.emit(marketPlaceInstance, "ListItemEvent").withArgs(itemId, item_name, seller);
 
-        marketPlaceInstance2 = await marketPlaceInstance.connect(buyer);
+        let marketPlaceInstance2 = await marketPlaceInstance.connect(buyer);
 
         const initialBuyerBalance = await ethers.provider.getBalance(buyer);
         console.log("Buyer balance before transaction 2: ", initialBuyerBalance); 
@@ -97,7 +97,7 @@ describe('Listing, purchasing and updating item on the market place', function()
 
         expect (await marketPlaceInstance.listItem(item_name, item_description, item_price)).to.be.emit(marketPlaceInstance, "ListItemEvent").withArgs(itemId, item_name, seller);
 
-        marketPlaceInstance2 = await marketPlaceInstance.connect(buyer);
+        let marketPlaceInstance2 = await marketPlaceInstance.connect(buyer);
 
         const initialBuyerBalance = await ethers.provider.getBalance(buyer);
         console.log("Buyer balance before transaction 3: ", initialBuyerBalance); 
