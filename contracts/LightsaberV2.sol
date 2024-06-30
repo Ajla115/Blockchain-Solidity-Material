@@ -2,7 +2,7 @@
 external function upgraded_NzYzYmZh() that will return the string "Upgraded by Ajla Korman."*/
 
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import './Lightsaber.sol';
 

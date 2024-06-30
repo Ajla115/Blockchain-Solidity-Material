@@ -10,6 +10,16 @@
       "address": "0x288EE2cA46fb521e59bBBC33EDD5CE4737739368",
       "txHash": "0x99890cf2d7c7dea682f3f5b250328dde3dec1789d3d6fc20500188e7503666d5",
       "kind": "transparent"
+    },
+    {
+      "address": "0x729754Eb88339853611bA988DaAaDb5164081b13",
+      "txHash": "0xc9c18bc25f76c3ad54989f61497f7eda25f9a85853c439d41e30e3ea95f3fcff",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x95aE1787610306a34364748Bf8975AB3D95Cefd6",
+      "txHash": "0x151baea170e195f6f54b2773293b588554e3a05959c1bbe36179919a6bd84dae",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -148,6 +158,70 @@
           "t_bool": {
             "label": "bool",
             "numberOfBytes": "1"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "78f7771a7e6f6c01c657e358a2e3e299f3d8a5f823b5b27c33480864745e57a8": {
+      "address": "0x128089C3Cc173f9e683607Cd79039222F584B1D1",
+      "txHash": "0x5c68eb26961f3b75333b37c38dc2bf1b4fd006fc488d8773afd4997506a5ed38",
+      "layout": {
+        "solcVersion": "0.8.19",
+        "storage": [
+          {
+            "label": "balances",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "SimpleBank",
+            "src": "contracts\\SimpleBank.sol:5"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "a7949eefb0cdd48b5c13fa5bc1471b9352985c46e1d192f2bb1be4b91721b3e0": {
+      "address": "0x4113c0f964e283ed22262c8A17438a0Efc83e54a",
+      "txHash": "0x6220d5dbdfeaa53e9b273ac0169625f9485e638cbec829461577b87b4d28d8aa",
+      "layout": {
+        "solcVersion": "0.8.19",
+        "storage": [
+          {
+            "label": "balances",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "SimpleBank",
+            "src": "contracts\\SimpleBank.sol:5"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
           },
           "t_uint256": {
             "label": "uint256",
