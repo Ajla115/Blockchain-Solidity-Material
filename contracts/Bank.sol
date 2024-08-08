@@ -1,10 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity 0.8.19;
 
 contract Bank {
-    mapping(address => uint) balances;
+    address owner;
 
-    event Withdrawal ( uint amount);
+    constructor(){
+        owner = msg.sender;
+    }
+
+    mapping (address => uint) balances;
+    event Withdrawal(uint amount);
 
     function deposit() external payable {
         balances[msg.sender] += msg.value;
@@ -14,12 +19,12 @@ contract Bank {
         return balances[msg.sender];
     }
 
-    function withdraw(address _to, uint _amount) external {
-        require (_amount < balances[msg.sender], "Not enough balance.");
+    function withdraw(address _to, uint amount) external payable {
+        require( amount <= balances[msg.sender], "Not enough balance");
+        balances[msg.sender] -= amount;
+        (bool sent, ) = _to.call{value: amount}("");
+        require(sent, "Failed to send Ethereum");
+        emit Withdrawal(amount);
 
-        balances[msg.sender] -= _amount; //one address is msg.sender
-        (bool sent, ) = _to.call{value: _amount}(""); //this _to is the second address
-        require(sent, "Failed to sent ether");
-        emit Withdrawal(  _amount);
     }
 }

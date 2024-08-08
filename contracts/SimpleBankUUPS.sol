@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-//this inheritance here is a must
+//this inheritance is needed here
 contract SimpleBankUUPS is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     mapping(address => uint256) balances;
 
-    //a must
+//and this initializer here as well
      function initialize() public initializer {
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
@@ -19,7 +19,7 @@ contract SimpleBankUUPS is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         balances[msg.sender] += msg.value;
     }
 
-    // a must
+//also this function for upgrading
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
     function withdraw(uint256 amount) external {
